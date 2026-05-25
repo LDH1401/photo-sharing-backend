@@ -2,15 +2,13 @@ const mongoose = require("mongoose");
 require("dotenv").config();
 
 async function dbConnect() {
-  mongoose
-    .connect(process.env.DB_URL)
-    .then(() => {
-      console.log("Successfully connected to MongoDB Atlas!");
-    })
-    .catch((error) => {
-      console.log("Unable to connect to MongoDB Atlas!");
-      console.error(error);
-    });
+  if (!process.env.DB_URL) {
+    console.error("Missing DB_URL environment variable.");
+    process.exit(1);
+  }
+
+  await mongoose.connect(process.env.DB_URL);
+  console.log("Successfully connected to MongoDB Atlas!");
 }
 
 module.exports = dbConnect;

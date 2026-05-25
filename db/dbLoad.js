@@ -8,8 +8,21 @@ const Photo = require("../db/photoModel.js");
 const SchemaInfo = require("../db/schemaInfo.js");
 
 const versionString = "1.0";
+const loginNamesByFakeId = {
+  "57231f1a30e4351f4e9f4bd7": "im",
+  "57231f1a30e4351f4e9f4bd8": "er",
+  "57231f1a30e4351f4e9f4bd9": "pt",
+  "57231f1a30e4351f4e9f4bda": "rk",
+  "57231f1a30e4351f4e9f4bdb": "al",
+  "57231f1a30e4351f4e9f4bdc": "jo",
+};
 
 async function dbLoad() {
+  if (!process.env.DB_URL) {
+    console.error("Missing DB_URL environment variable.");
+    process.exit(1);
+  }
+
   try {
     await mongoose.connect(process.env.DB_URL);
     console.log("Successfully connected to MongoDB Atlas!");
@@ -26,7 +39,12 @@ async function dbLoad() {
   const userModels = models.userListModel();
   const mapFakeId2RealId = {};
   for (const user of userModels) {
+    const loginName =
+      loginNamesByFakeId[user._id] ||
+      `${user.first_name}_${user.last_name}`.toLowerCase();
     const userObj = new User({
+      login_name: loginName,
+      password: loginName,
       first_name: user.first_name,
       last_name: user.last_name,
       location: user.location,
